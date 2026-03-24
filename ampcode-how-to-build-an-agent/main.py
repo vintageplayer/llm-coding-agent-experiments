@@ -24,21 +24,18 @@ class Agent:
             conversation.append(user_message)
 
             message = self.run_inference(conversation)
-            conversation.append(
-                {
-                    "role": message.role,
-                    "content": [
-                        block.model_dump() if hasattr(block, "model_dump") else block
-                        for block in message.content
-                    ],
-                }
-            )
-
+            assistant_text_parts = []
             for content in message.content:
-                content_type = getattr(content, "type", None)
-                if content_type == "text":
+                if content.type == "text":
+                    assistant_text_parts.append(content.text)
                     print(f"\033[93mClaude\033[0m: {content.text}")
 
+            conversation.append(
+                {
+                    "role": "assistant",
+                    "content": "".join(assistant_text_parts),
+                }
+            )
         return None
 
     def run_inference(self, conversation):
